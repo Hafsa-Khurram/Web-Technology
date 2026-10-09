@@ -8,6 +8,47 @@ Web Technology semester project, built with the **MERN stack** (MongoDB, Express
 
 GoTravel automates the work of a travel agency: customers browse and book tour packages, travel agents manage packages, bookings and payments, and administrators manage users and see business analytics.
 
+![GoTravel homepage](docs/screenshots/01-home.jpg)
+
+---
+
+## Screenshots
+
+### Customer side
+
+| Homepage | Tour packages |
+|---|---|
+| ![Homepage](docs/screenshots/01-home.jpg) | ![Packages with filters](docs/screenshots/03-packages.jpg) |
+
+| Package detail and booking | Login |
+|---|---|
+| ![Package detail](docs/screenshots/04-package-detail.jpg) | ![Login](docs/screenshots/05-login.jpg) |
+
+| My bookings | Invoice |
+|---|---|
+| ![My bookings](docs/screenshots/06-my-bookings.jpg) | ![Invoice](docs/screenshots/07-invoice.jpg) |
+
+### Agent and admin portal
+
+| Admin analytics dashboard | Booking management |
+|---|---|
+| ![Admin dashboard](docs/screenshots/08-admin-dashboard.jpg) | ![Agent bookings](docs/screenshots/09-agent-bookings.jpg) |
+
+| Manage a booking (confirm, modify, payments, discount) | Package management |
+|---|---|
+| ![Manage booking](docs/screenshots/10-manage-booking.jpg) | ![Manage packages](docs/screenshots/11-manage-packages.jpg) |
+
+| User management | Mobile view |
+|---|---|
+| ![Users](docs/screenshots/12-users.jpg) | <img src="docs/screenshots/13-mobile.jpg" alt="Mobile homepage" width="260"> |
+
+<details>
+<summary>Full homepage</summary>
+
+![Homepage sections](docs/screenshots/02-home-sections.jpg)
+
+</details>
+
 ---
 
 ## Features (mapped to the proposal)
@@ -70,24 +111,51 @@ Web-Technology/
 
 ## How to run
 
-**Requirements:** Node.js 18+ and MongoDB (local MongoDB Community Server / Compass, or a free MongoDB Atlas cluster).
+### What you need (install once)
+1. **Node.js 18 or newer** — https://nodejs.org (LTS version)
+2. **Git** — https://git-scm.com
+3. **MongoDB** — either
+   - **MongoDB Community Server** (installs locally, includes Compass) — https://www.mongodb.com/try/download/community, or
+   - a free **MongoDB Atlas** cluster in the cloud — https://www.mongodb.com/atlas
 
+### Steps
 ```bash
-# 1. Install everything
+# 1. Download the project
+git clone https://github.com/Hafsa-Khurram/Web-Technology.git
+cd Web-Technology
+
+# 2. Install all packages (root, server and client)
 npm run install-all
 
-# 2. Configure the server
-cp server/.env.example server/.env      # on Windows: copy server\.env.example server\.env
-#    then edit MONGO_URI if you use Atlas
+# 3. Create the server settings file
+copy server\.env.example server\.env      # Windows (Command Prompt)
+cp server/.env.example server/.env        # macOS / Linux / Git Bash
+#    Using Atlas? Open server/.env and set MONGO_URI to your Atlas connection string.
 
-# 3. Load demo data (clears the gotravel database)
+# 4. Load demo data (clears the gotravel database)
 npm run seed
 
-# 4. Start API (port 5000) and React app (port 5173) together
+# 5. Start the API (port 5000) and the React app (port 5173) together
 npm run dev
 ```
 
-Open **http://localhost:5173**.
+Open **http://localhost:5173** in your browser. Stop the app with `Ctrl + C`.
+
+### Getting the latest changes later
+```bash
+cd Web-Technology
+git pull
+npm run install-all   # only needed if packages changed
+npm run dev
+```
+
+### Common problems
+| Problem | Fix |
+|---|---|
+| `Could not connect to MongoDB` | Start the MongoDB service (Windows: Services → MongoDB Server → Start) or check `MONGO_URI` in `server/.env` |
+| `EADDRINUSE: address already in use :5000` | Another program is using port 5000. Close it, or change `PORT` in `server/.env` and the proxy port in `client/vite.config.js` |
+| Packages page is empty | Run `npm run seed` |
+| `npm` is not recognised | Reinstall Node.js and restart the terminal |
 
 ### Demo accounts
 
