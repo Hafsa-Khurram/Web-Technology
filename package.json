@@ -1,36 +1,17 @@
 {
-  "name": "travel-agency",
-  "version": "0.1.0",
+  "name": "gotravel",
+  "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "cra-template": "1.2.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.1.1",
-    "react-scripts": "5.0.1"
-  },
+  "description": "GoTravel - Travel Agency Management System (MERN stack)",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "lint": "npm run lint --prefix client"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }

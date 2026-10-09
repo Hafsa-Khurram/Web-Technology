@@ -1,70 +1,131 @@
-# Getting Started with Create React App
+# GoTravel — Travel Agency Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Web Technology semester project, built with the **MERN stack** (MongoDB, Express, React, Node.js).
 
-## Available Scripts
+**Group members**
+- Zainab Asif (FA22-BCS-068)
+- Hafsa Khurram (FA22-BCS-058)
 
-In the project directory, you can run:
+GoTravel automates the work of a travel agency: customers browse and book tour packages, travel agents manage packages, bookings and payments, and administrators manage users and see business analytics.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features (mapped to the proposal)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. User portal (customers)
+- **Registration / login** with encrypted passwords (bcrypt) and JWT sessions; profile and password editing
+- **Package search and booking**: search by destination, filter by trip style, budget and length, sort by price or rating
+- Package detail page with highlights, reviews, live price summary and **promo codes**
+- **Booking confirmation**: in-app notifications (bell icon) and email (when SMTP is configured) when a booking is received, confirmed, updated, paid, cancelled or completed
+- **My bookings** shown as boarding passes, with status, payment balance, cancel option and printable **invoice**
 
-### `npm test`
+### 2. Travel agent portal (`/dashboard`)
+- **Package management**: create, edit, hide/show and delete packages (packages with bookings are archived, not deleted)
+- **Booking management**: view, search and filter all bookings; confirm, modify (travellers, date, notes), complete or cancel; seat availability is checked per departure date
+- **Payment handling**: record full or partial payments (cash, card, bank transfer, Easypaisa, JazzCash), mark refunds, **apply discounts**, and **generate invoices**
+- **Discount codes**: create, enable/disable and delete promo codes
+- Customer list with editing
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 3. Admin portal (`/dashboard`, admin account)
+- **User management**: create customers, agents and admins; change roles; activate/deactivate; delete accounts
+- **Package overview**: full control over every package
+- **Analytics**: booked vs collected revenue, outstanding balance, revenue for the last 6 months, booking status breakdown, payment status, top packages, average rating
+- Review moderation
 
-### `npm run build`
+### 4. Feedback and rating system
+- Customers rate (1–5 stars) and review each package they've travelled on (one review per booking)
+- Package ratings update automatically and appear on package cards, detail pages and the homepage
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Layer    | Technology |
+|----------|-----------|
+| Frontend | React 19, React Router 7, Vite, Recharts, React Icons, plain CSS |
+| Backend  | Node.js, Express 4, JWT, bcryptjs, Nodemailer |
+| Database | MongoDB with Mongoose 8 |
 
-### `npm run eject`
+## Project structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+Web-Technology/
+├── client/                 React frontend (Vite)
+│   ├── public/images/      Optimised travel photos
+│   └── src/
+│       ├── components/     Navbar, Footer, PackageCard, guards, shared UI
+│       ├── context/        Auth and toast state
+│       ├── pages/          Public pages, customer account pages
+│       │   └── dashboard/  Agent / admin portal
+│       └── styles/         Design system (index.css)
+└── server/                 Express + MongoDB API
+    └── src/
+        ├── models/         User, Package, Booking, Feedback, Coupon, Notification
+        ├── routes/         auth, packages, bookings, feedback, users, analytics...
+        ├── middleware/     JWT auth and role checks
+        └── seed.js         Demo data
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## How to run
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Requirements:** Node.js 18+ and MongoDB (local MongoDB Community Server / Compass, or a free MongoDB Atlas cluster).
 
-## Learn More
+```bash
+# 1. Install everything
+npm run install-all
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# 2. Configure the server
+cp server/.env.example server/.env      # on Windows: copy server\.env.example server\.env
+#    then edit MONGO_URI if you use Atlas
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# 3. Load demo data (clears the gotravel database)
+npm run seed
 
-### Code Splitting
+# 4. Start API (port 5000) and React app (port 5173) together
+npm run dev
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Open **http://localhost:5173**.
 
-### Analyzing the Bundle Size
+### Demo accounts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+| Role     | Email                   | Password    |
+|----------|-------------------------|-------------|
+| Customer | customer@gotravel.com   | customer123 |
+| Agent    | agent@gotravel.com      | agent123    |
+| Admin    | admin@gotravel.com      | admin123    |
 
-### Making a Progressive Web App
+Promo codes: `WELCOME10` (10% off), `SUMMER20` (20% off).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Production build
+```bash
+npm run build   # builds client/dist
+npm start       # Express serves the API and the built React app on http://localhost:5000
+```
 
-### Advanced Configuration
+### Emails
+Booking emails are printed in the server console by default. To send real emails, fill in the `SMTP_*` values in `server/.env` (for Gmail use an App Password).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## API overview
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| POST | `/api/auth/register`, `/api/auth/login` | Public |
+| GET / PATCH | `/api/auth/me` | Logged in |
+| GET | `/api/packages`, `/api/packages/:id` | Public |
+| POST / PUT / DELETE | `/api/packages/:id` | Agent, Admin |
+| POST | `/api/bookings` | Customer |
+| GET | `/api/bookings/mine` | Customer |
+| POST | `/api/bookings/:id/cancel` | Owner |
+| GET / PATCH | `/api/bookings`, `/api/bookings/:id` | Agent, Admin |
+| POST | `/api/bookings/:id/payments`, `/api/bookings/:id/refund` | Agent, Admin |
+| PATCH | `/api/bookings/:id/discount` | Agent, Admin |
+| POST | `/api/feedback` | Customer (after trip) |
+| GET / POST / PATCH / DELETE | `/api/users` | Admin (agents: customers only) |
+| GET / POST / PATCH / DELETE | `/api/coupons` | Agent, Admin |
+| GET | `/api/analytics` | Agent, Admin |
+| GET | `/api/notifications` | Logged in |
