@@ -192,7 +192,10 @@ router.patch(
       if (status === "cancelled") booking.cancelledAt = new Date();
     }
 
-    if (travelers !== undefined || travelDate) {
+    // Re-check seats when the party size or date changes, or when a cancelled /
+    // completed booking is made active again (its seats were released).
+    const reopened = !["pending", "confirmed"].includes(before) && ["pending", "confirmed"].includes(booking.status);
+    if (travelers !== undefined || travelDate || reopened) {
       const pkg = await Package.findById(booking.package._id);
       const taken = await seatsTaken(pkg._id, booking.travelDate, booking._id);
       if (["pending", "confirmed"].includes(booking.status) && taken + booking.travelers > pkg.seats) {
