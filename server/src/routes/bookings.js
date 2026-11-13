@@ -113,7 +113,7 @@ router.post(
         notify({ _id: s._id }, {
           title: "New booking",
           message: `${req.user.name} booked "${pkg.title}" for ${count} (${booking.bookingRef}).`,
-          link: "/agent/bookings",
+          link: "/dashboard/bookings?status=pending",
         })
       )
     );
