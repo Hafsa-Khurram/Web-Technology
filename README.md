@@ -156,6 +156,7 @@ npm run dev
 | `EADDRINUSE: address already in use :5000` | Another program is using port 5000. Close it, or change `PORT` in `server/.env` and the proxy port in `client/vite.config.js` |
 | Packages page is empty | Run `npm run seed` |
 | `npm` is not recognised | Reinstall Node.js and restart the terminal |
+| `EBADENGINE` warning or the server won't start after `git pull` | The project now needs **Node.js 20 or newer**. Check with `node -v`, install the current LTS, then run `npm run install-all` again |
 
 ### Demo accounts
 
@@ -175,6 +176,19 @@ npm start       # Express serves the API and the built React app on http://local
 
 ### Emails
 Booking emails are printed in the server console by default. To send real emails, fill in the `SMTP_*` values in `server/.env` (for Gmail use an App Password).
+
+---
+
+## Recent updates (November 2026)
+
+A full review of the project, with each fix in its own commit ([pull request #1](https://github.com/Hafsa-Khurram/Web-Technology/pull/1)):
+
+- **Bookings:** seats are re-checked when a cancelled booking is re-opened, a booking can't be refunded twice, and pending bookings with a past date stay visible in *My bookings*
+- **Dates:** travel dates work the same in every time zone (server and browser), so "book from tomorrow" and the dates shown in notifications are always correct
+- **Notifications:** the agent's *New booking* link opens the pending bookings list, and the bell badge clears once notifications are read
+- **Checkout:** editing the promo code removes the old discount; new customers return to the package they were booking after signing up
+- **Mobile:** *Log in* added to the phone menu, the Discounts page stacks on small screens, and tab bars and pop-up messages fit the screen
+- **Security:** user names are escaped in emails, unusual search parameters can't crash the API, and Express, Mongoose, Nodemailer and Vite are updated (0 known vulnerabilities)
 
 ---
 
