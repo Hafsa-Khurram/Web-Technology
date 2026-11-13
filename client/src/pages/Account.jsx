@@ -223,7 +223,14 @@ export function Notifications() {
 
   useEffect(() => {
     if (data?.unread > 0) {
-      const t = setTimeout(() => api("/notifications/read-all", { method: "POST" }).catch(() => {}), 1500);
+      const t = setTimeout(
+        () =>
+          api("/notifications/read-all", { method: "POST" })
+            // tell the navbar so the bell badge clears without a page change
+            .then(() => window.dispatchEvent(new Event("gt:notifications-read")))
+            .catch(() => {}),
+        1500
+      );
       return () => clearTimeout(t);
     }
   }, [data]);
