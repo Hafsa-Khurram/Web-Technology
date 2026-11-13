@@ -75,6 +75,12 @@ export default function Navbar({ overHero = false }) {
               </NavLink>
             </li>
           ))}
+          {!user && (
+            // The "Log in" button in the header is hidden on phones, so offer it in the menu
+            <li className="menu-only">
+              <NavLink to="/login">Log in</NavLink>
+            </li>
+          )}
         </ul>
         <div className="nav-actions">
           {user ? (

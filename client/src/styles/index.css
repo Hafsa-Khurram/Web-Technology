@@ -442,7 +442,16 @@ p {
 .burger {
   display: none;
 }
+.nav-links .menu-only {
+  display: none;
+}
 @media (max-width: 860px) {
+  .nav-links .menu-only {
+    display: block;
+    border-top: 1px solid var(--line);
+    margin-top: 6px;
+    padding-top: 6px;
+  }
   .burger {
     display: inline-grid;
   }
