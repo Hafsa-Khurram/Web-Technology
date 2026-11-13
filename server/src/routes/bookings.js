@@ -22,6 +22,10 @@ async function loadBooking(req) {
   return booking;
 }
 
+// e.g. "Tue, 1 Dec 2026" for the stored travel day, regardless of the server's time zone
+const day = (d) =>
+  new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
 function money(n) {
   return `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
@@ -221,7 +225,7 @@ router.patch(
     const customer = booking.user;
     if (status && status !== before) {
       const msgs = {
-        confirmed: `Great news! Your booking ${booking.bookingRef} for "${booking.package.title}" is confirmed for ${booking.travelDate.toDateString()}.`,
+        confirmed: `Great news! Your booking ${booking.bookingRef} for "${booking.package.title}" is confirmed for ${day(booking.travelDate)}.`,
         cancelled: `Your booking ${booking.bookingRef} for "${booking.package.title}" has been cancelled.`,
         completed: `We hope you enjoyed "${booking.package.title}"! Please rate your trip and leave feedback.`,
         pending: `Your booking ${booking.bookingRef} is pending review again.`,
@@ -234,7 +238,7 @@ router.patch(
     } else if (travelers !== undefined || travelDate) {
       await notify(customer, {
         title: "Booking updated",
-        message: `Your booking ${booking.bookingRef} was updated: ${booking.travelers} traveller(s) on ${booking.travelDate.toDateString()}. New total ${money(booking.total)}.`,
+        message: `Your booking ${booking.bookingRef} was updated: ${booking.travelers} traveller(s) on ${day(booking.travelDate)}. New total ${money(booking.total)}.`,
         link: "/my-bookings",
       });
     }
