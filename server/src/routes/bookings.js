@@ -288,6 +288,7 @@ router.post(
   wrap(async (req, res) => {
     const booking = await loadBooking(req);
     if (booking.status !== "cancelled") throw new HttpError(400, "Only cancelled bookings can be refunded");
+    if (booking.paymentStatus === "refunded") throw new HttpError(400, "This booking has already been refunded");
     if (booking.amountPaid <= 0) throw new HttpError(400, "Nothing has been paid on this booking");
     booking.paymentStatus = "refunded";
     await booking.save();
