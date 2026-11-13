@@ -179,7 +179,18 @@ function BookingBox({ pkg }) {
         <div className="field">
           <label htmlFor="code"><FiTag style={{ verticalAlign: "-2px" }} /> Promo code</label>
           <div className="row" style={{ flexWrap: "nowrap", gap: 6 }}>
-            <input id="code" className="input" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="WELCOME10" />
+            <input
+              id="code"
+              className="input"
+              value={code}
+              onChange={(e) => {
+                const next = e.target.value.toUpperCase();
+                setCode(next);
+                // Editing the code removes the discount until the new code is applied
+                if (coupon && next !== coupon.code) setCoupon(null);
+              }}
+              placeholder="WELCOME10"
+            />
             <button type="button" className="btn btn-ghost" onClick={applyCode} disabled={!code}>Apply</button>
           </div>
         </div>
