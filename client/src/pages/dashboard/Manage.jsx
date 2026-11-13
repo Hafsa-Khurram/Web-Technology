@@ -42,7 +42,7 @@ export function Discounts() {
   return (
     <>
       <DashHead title="Discounts" />
-      <div className="dash-grid" style={{ gridTemplateColumns: "1fr 340px" }}>
+      <div className="dash-grid with-form">
         <div>
           {loading ? (
             <Loader />
