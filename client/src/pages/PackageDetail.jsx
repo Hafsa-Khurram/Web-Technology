@@ -7,10 +7,12 @@ import { useApi, useTitle } from "../hooks";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
+// Tomorrow's date in the visitor's own time zone, as YYYY-MM-DD for <input type="date">.
+// (toISOString() would give the UTC date, which is a day off for part of the day.)
 function minDate() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export default function PackageDetail() {
