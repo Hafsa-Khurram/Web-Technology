@@ -45,6 +45,13 @@ export default function Navbar({ overHero = false }) {
       .catch(() => {});
   }, [user, pathname]);
 
+  // The notifications page marks everything as read while staying on the same URL
+  useEffect(() => {
+    const clear = () => setUnread(0);
+    window.addEventListener("gt:notifications-read", clear);
+    return () => window.removeEventListener("gt:notifications-read", clear);
+  }, []);
+
   useEffect(() => {
     const close = (e) => menuRef.current && !menuRef.current.contains(e.target) && setMenu(false);
     document.addEventListener("mousedown", close);
@@ -68,6 +75,12 @@ export default function Navbar({ overHero = false }) {
               </NavLink>
             </li>
           ))}
+          {!user && (
+            // The "Log in" button in the header is hidden on phones, so offer it in the menu
+            <li className="menu-only">
+              <NavLink to="/login">Log in</NavLink>
+            </li>
+          )}
         </ul>
         <div className="nav-actions">
           {user ? (

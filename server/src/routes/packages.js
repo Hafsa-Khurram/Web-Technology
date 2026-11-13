@@ -46,7 +46,8 @@ router.get(
       const rx = new RegExp(escapeRegex(String(q).trim()), "i");
       filter.$or = [{ title: rx }, { destination: rx }, { country: rx }];
     }
-    if (category && category !== "All") filter.category = category;
+    // Only plain strings from the list of categories (blocks ?category[$ne]=... style filters)
+    if (typeof category === "string" && Package.CATEGORIES.includes(category)) filter.category = category;
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = Number(minPrice);
@@ -61,7 +62,9 @@ router.get(
       duration: { durationDays: 1 },
       newest: { createdAt: -1 },
     };
-    const packages = await Package.find(filter).sort(sorts[sort] || { createdAt: -1 });
+    // Object.hasOwn avoids inherited keys such as ?sort=constructor
+    const order = typeof sort === "string" && Object.hasOwn(sorts, sort) ? sorts[sort] : { createdAt: -1 };
+    const packages = await Package.find(filter).sort(order);
     res.json({ packages });
   })
 );

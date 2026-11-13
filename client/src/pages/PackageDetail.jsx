@@ -7,10 +7,12 @@ import { useApi, useTitle } from "../hooks";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
+// Tomorrow's date in the visitor's own time zone, as YYYY-MM-DD for <input type="date">.
+// (toISOString() would give the UTC date, which is a day off for part of the day.)
 function minDate() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export default function PackageDetail() {
@@ -177,7 +179,18 @@ function BookingBox({ pkg }) {
         <div className="field">
           <label htmlFor="code"><FiTag style={{ verticalAlign: "-2px" }} /> Promo code</label>
           <div className="row" style={{ flexWrap: "nowrap", gap: 6 }}>
-            <input id="code" className="input" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="WELCOME10" />
+            <input
+              id="code"
+              className="input"
+              value={code}
+              onChange={(e) => {
+                const next = e.target.value.toUpperCase();
+                setCode(next);
+                // Editing the code removes the discount until the new code is applied
+                if (coupon && next !== coupon.code) setCoupon(null);
+              }}
+              placeholder="WELCOME10"
+            />
             <button type="button" className="btn btn-ghost" onClick={applyCode} disabled={!code}>Apply</button>
           </div>
         </div>

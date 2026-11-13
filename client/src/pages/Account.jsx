@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { FiBriefcase, FiBell, FiCheckCircle, FiCreditCard, FiXCircle, FiStar, FiPrinter, FiInfo } from "react-icons/fi";
 import { Badge, Empty, Loader, Modal, StarInput } from "../components/ui";
-import { api, destCode, fmtDate, money } from "../api";
+import { api, destCode, fmtDate, fmtDay, money } from "../api";
 import { useApi, useTitle } from "../hooks";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -21,9 +21,12 @@ export function MyBookings() {
 
   const now = new Date();
   const all = data?.bookings || [];
+  // Every booking lands in exactly one tab. Pending bookings stay under "Upcoming"
+  // even if the date has passed, because they still need an agent's decision.
+  const isPast = (b) => b.status === "completed" || (b.status === "confirmed" && new Date(b.travelDate) < now);
   const groups = {
-    upcoming: all.filter((b) => ["pending", "confirmed"].includes(b.status) && new Date(b.travelDate) >= now),
-    past: all.filter((b) => b.status === "completed" || (b.status === "confirmed" && new Date(b.travelDate) < now)),
+    upcoming: all.filter((b) => ["pending", "confirmed"].includes(b.status) && !isPast(b)),
+    past: all.filter(isPast),
     cancelled: all.filter((b) => b.status === "cancelled"),
   };
 
@@ -133,7 +136,7 @@ function BoardingPass({ b, onCancel, onReview, highlight }) {
           <h3 style={{ marginTop: 10 }}>{pkg.title || "Package removed"}</h3>
           <div className="muted small">{pkg.destination}, {pkg.country}</div>
           <dl className="pass-fields">
-            <div><dt>Departs</dt><dd>{fmtDate(b.travelDate)}</dd></div>
+            <div><dt>Departs</dt><dd>{fmtDay(b.travelDate)}</dd></div>
             <div><dt>Travellers</dt><dd>{b.travelers}</dd></div>
             <div><dt>Duration</dt><dd>{pkg.durationDays} days</dd></div>
             <div><dt>Total</dt><dd>{money(b.total)}</dd></div>
@@ -220,7 +223,14 @@ export function Notifications() {
 
   useEffect(() => {
     if (data?.unread > 0) {
-      const t = setTimeout(() => api("/notifications/read-all", { method: "POST" }).catch(() => {}), 1500);
+      const t = setTimeout(
+        () =>
+          api("/notifications/read-all", { method: "POST" })
+            // tell the navbar so the bell badge clears without a page change
+            .then(() => window.dispatchEvent(new Event("gt:notifications-read")))
+            .catch(() => {}),
+        1500
+      );
       return () => clearTimeout(t);
     }
   }, [data]);
@@ -386,7 +396,7 @@ export function Invoice() {
           <div>
             <div className="muted small">Booking</div>
             <strong>{b.bookingRef}</strong>
-            <div>Travel date: {fmtDate(b.travelDate)}</div>
+            <div>Travel date: {fmtDay(b.travelDate)}</div>
             <div className="row" style={{ gap: 6, marginTop: 4 }}><Badge value={b.status} /><Badge value={b.paymentStatus} /></div>
           </div>
         </div>

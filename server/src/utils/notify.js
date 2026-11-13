@@ -2,6 +2,11 @@ const nodemailer = require("nodemailer");
 const { smtp } = require("../config");
 const Notification = require("../models/Notification");
 
+// Names, package titles and messages come from users, so escape them before
+// putting them into the HTML email.
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
 let transporter = null;
 if (smtp.host && smtp.user) {
   transporter = nodemailer.createTransport({
@@ -31,8 +36,8 @@ async function notify(user, { title, message, link = "" }) {
       subject: `GoTravel: ${title}`,
       text: `Hi ${user.name},\n\n${message}\n\nThe GoTravel Team`,
       html: `<div style="font-family:Arial,sans-serif;max-width:520px">
-        <h2 style="color:#0f4c5c">${title}</h2>
-        <p>Hi ${user.name},</p><p>${message}</p>
+        <h2 style="color:#0f4c5c">${escapeHtml(title)}</h2>
+        <p>Hi ${escapeHtml(user.name)},</p><p>${escapeHtml(message)}</p>
         <p style="color:#888">The GoTravel Team</p></div>`,
     });
   } catch (err) {

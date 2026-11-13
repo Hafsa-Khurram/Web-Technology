@@ -83,7 +83,7 @@ export function Login() {
       <form onSubmit={submit}>
         <h1 style={{ fontSize: "2rem" }}>Log in</h1>
         <p className="muted">
-          New here? <Link to="/register">Create an account</Link>
+          New here? <Link to="/register" state={location.state}>Create an account</Link>
         </p>
         {err && <div className="form-error">{err}</div>}
         <div className="field">
@@ -121,6 +121,7 @@ export function Register() {
   const { register } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
   const [agree, setAgree] = useState(false);
   const [err, setErr] = useState("");
@@ -136,7 +137,8 @@ export function Register() {
     try {
       const user = await register({ name: form.name, email: form.email, phone: form.phone, password: form.password });
       toast(`Account created. Welcome, ${user.name.split(" ")[0]}!`);
-      navigate("/packages", { replace: true });
+      // Back to the page that sent them here (e.g. the package they wanted to book)
+      navigate(location.state?.from || "/packages", { replace: true });
     } catch (e2) {
       setErr(e2.message);
     } finally {
@@ -149,7 +151,7 @@ export function Register() {
       <form onSubmit={submit}>
         <h1 style={{ fontSize: "2rem" }}>Create account</h1>
         <p className="muted">
-          Already have one? <Link to="/login">Log in</Link>
+          Already have one? <Link to="/login" state={location.state}>Log in</Link>
         </p>
         {err && <div className="form-error">{err}</div>}
         <div className="field">

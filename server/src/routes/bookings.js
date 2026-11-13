@@ -22,15 +22,32 @@ async function loadBooking(req) {
   return booking;
 }
 
+// e.g. "Tue, 1 Dec 2026" for the stored travel day, regardless of the server's time zone
+const day = (d) =>
+  new Date(d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
 function money(n) {
   return `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
+// Travel dates arrive as "YYYY-MM-DD", which JavaScript reads as midnight UTC.
+// All day calculations use UTC so results don't depend on the server's time zone.
+const DAY = 24 * 60 * 60 * 1000;
+const utcDay = (d) => {
+  const x = new Date(d);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
+};
+
+// Earliest date a customer can book: "tomorrow" for someone in the furthest-behind
+// time zone (UTC-12). This never rejects a customer's real tomorrow, wherever they are.
+function earliestTravelDate() {
+  return new Date(utcDay(Date.now() - 12 * 60 * 60 * 1000).getTime() + DAY);
+}
+
 async function seatsTaken(packageId, travelDate, excludeId) {
-  const start = new Date(travelDate);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  const start = utcDay(travelDate);
+  const end = new Date(start.getTime() + DAY);
   const rows = await Booking.find({
     package: packageId,
     travelDate: { $gte: start, $lt: end },
@@ -65,10 +82,9 @@ router.post(
     if (!Number.isInteger(count) || count < 1 || count > 20) throw new HttpError(400, "Travellers must be between 1 and 20");
 
     const date = new Date(travelDate);
-    const tomorrow = new Date();
-    tomorrow.setHours(0, 0, 0, 0);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (Number.isNaN(date.getTime()) || date < tomorrow) throw new HttpError(400, "Please choose a travel date from tomorrow onwards");
+    if (Number.isNaN(date.getTime()) || date < earliestTravelDate()) {
+      throw new HttpError(400, "Please choose a travel date from tomorrow onwards");
+    }
 
     const taken = await seatsTaken(pkg._id, date);
     if (taken + count > pkg.seats) {
@@ -113,7 +129,7 @@ router.post(
         notify({ _id: s._id }, {
           title: "New booking",
           message: `${req.user.name} booked "${pkg.title}" for ${count} (${booking.bookingRef}).`,
-          link: "/agent/bookings",
+          link: "/dashboard/bookings?status=pending",
         })
       )
     );
@@ -190,9 +206,13 @@ router.patch(
       if (!Booking.STATUSES.includes(status)) throw new HttpError(400, "Invalid status");
       booking.status = status;
       if (status === "cancelled") booking.cancelledAt = new Date();
+      else booking.cancelledAt = undefined; // re-opened bookings are no longer cancelled
     }
 
-    if (travelers !== undefined || travelDate) {
+    // Re-check seats when the party size or date changes, or when a cancelled /
+    // completed booking is made active again (its seats were released).
+    const reopened = !["pending", "confirmed"].includes(before) && ["pending", "confirmed"].includes(booking.status);
+    if (travelers !== undefined || travelDate || reopened) {
       const pkg = await Package.findById(booking.package._id);
       const taken = await seatsTaken(pkg._id, booking.travelDate, booking._id);
       if (["pending", "confirmed"].includes(booking.status) && taken + booking.travelers > pkg.seats) {
@@ -206,7 +226,7 @@ router.patch(
     const customer = booking.user;
     if (status && status !== before) {
       const msgs = {
-        confirmed: `Great news! Your booking ${booking.bookingRef} for "${booking.package.title}" is confirmed for ${booking.travelDate.toDateString()}.`,
+        confirmed: `Great news! Your booking ${booking.bookingRef} for "${booking.package.title}" is confirmed for ${day(booking.travelDate)}.`,
         cancelled: `Your booking ${booking.bookingRef} for "${booking.package.title}" has been cancelled.`,
         completed: `We hope you enjoyed "${booking.package.title}"! Please rate your trip and leave feedback.`,
         pending: `Your booking ${booking.bookingRef} is pending review again.`,
@@ -219,7 +239,7 @@ router.patch(
     } else if (travelers !== undefined || travelDate) {
       await notify(customer, {
         title: "Booking updated",
-        message: `Your booking ${booking.bookingRef} was updated: ${booking.travelers} traveller(s) on ${booking.travelDate.toDateString()}. New total ${money(booking.total)}.`,
+        message: `Your booking ${booking.bookingRef} was updated: ${booking.travelers} traveller(s) on ${day(booking.travelDate)}. New total ${money(booking.total)}.`,
         link: "/my-bookings",
       });
     }
@@ -285,6 +305,7 @@ router.post(
   wrap(async (req, res) => {
     const booking = await loadBooking(req);
     if (booking.status !== "cancelled") throw new HttpError(400, "Only cancelled bookings can be refunded");
+    if (booking.paymentStatus === "refunded") throw new HttpError(400, "This booking has already been refunded");
     if (booking.amountPaid <= 0) throw new HttpError(400, "Nothing has been paid on this booking");
     booking.paymentStatus = "refunded";
     await booking.save();

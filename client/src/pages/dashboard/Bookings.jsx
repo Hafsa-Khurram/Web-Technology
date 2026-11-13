@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FiBriefcase, FiEdit2, FiPrinter } from "react-icons/fi";
 import { Badge, Empty, Loader, Modal } from "../../components/ui";
 import { DashHead } from "./DashboardLayout";
-import { api, fmtDate, money } from "../../api";
+import { api, fmtDate, fmtDay, money } from "../../api";
 import { useApi, useTitle } from "../../hooks";
 import { useToast } from "../../context/ToastContext";
 
@@ -83,7 +83,7 @@ export default function Bookings() {
                   <td><strong>{b.bookingRef}</strong><div className="muted small">{fmtDate(b.createdAt)}</div></td>
                   <td>{b.user?.name}<div className="muted small">{b.user?.email}</div></td>
                   <td>{b.package?.title}</td>
-                  <td>{fmtDate(b.travelDate)}</td>
+                  <td>{fmtDay(b.travelDate)}</td>
                   <td>{b.travelers}</td>
                   <td>{money(b.total)}<div className="muted small">paid {money(b.amountPaid)}</div></td>
                   <td><Badge value={b.status} /></td>
@@ -155,7 +155,7 @@ function ManageBooking({ booking: b, onClose, onChanged }) {
           <div className="grid-2" style={{ gap: "8px 24px" }}>
             <Info label="Customer" value={<>{b.user?.name}<div className="muted small">{b.user?.email} · {b.contactPhone || "no phone"}</div></>} />
             <Info label="Package" value={b.package?.title} />
-            <Info label="Travel date" value={fmtDate(b.travelDate)} />
+            <Info label="Travel date" value={fmtDay(b.travelDate)} />
             <Info label="Travellers" value={b.travelers} />
             <Info label="Status" value={<Badge value={b.status} />} />
             <Info label="Payment" value={<><Badge value={b.paymentStatus} /> <span className="small">{money(b.amountPaid)} of {money(b.total)}</span></>} />

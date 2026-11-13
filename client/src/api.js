@@ -56,6 +56,10 @@ export const money = (n) =>
 export const fmtDate = (d, opts = { day: "numeric", month: "short", year: "numeric" }) =>
   d ? new Date(d).toLocaleDateString("en-GB", opts) : "—";
 
+// Calendar days picked in a date input (travel dates, coupon expiry) are stored as
+// midnight UTC. Format them in UTC so every visitor sees the same day that was chosen.
+export const fmtDay = (d) => fmtDate(d, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
 // Three-letter "airport style" code for a destination, used on ticket cards
 export const destCode = (name = "") =>
   name.replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase().padEnd(3, "X");
