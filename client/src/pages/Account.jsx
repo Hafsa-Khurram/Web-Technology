@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { FiBriefcase, FiBell, FiCheckCircle, FiCreditCard, FiXCircle, FiStar, FiPrinter, FiInfo } from "react-icons/fi";
 import { Badge, Empty, Loader, Modal, StarInput } from "../components/ui";
-import { api, destCode, fmtDate, money } from "../api";
+import { api, destCode, fmtDate, fmtDay, money } from "../api";
 import { useApi, useTitle } from "../hooks";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -136,7 +136,7 @@ function BoardingPass({ b, onCancel, onReview, highlight }) {
           <h3 style={{ marginTop: 10 }}>{pkg.title || "Package removed"}</h3>
           <div className="muted small">{pkg.destination}, {pkg.country}</div>
           <dl className="pass-fields">
-            <div><dt>Departs</dt><dd>{fmtDate(b.travelDate)}</dd></div>
+            <div><dt>Departs</dt><dd>{fmtDay(b.travelDate)}</dd></div>
             <div><dt>Travellers</dt><dd>{b.travelers}</dd></div>
             <div><dt>Duration</dt><dd>{pkg.durationDays} days</dd></div>
             <div><dt>Total</dt><dd>{money(b.total)}</dd></div>
@@ -389,7 +389,7 @@ export function Invoice() {
           <div>
             <div className="muted small">Booking</div>
             <strong>{b.bookingRef}</strong>
-            <div>Travel date: {fmtDate(b.travelDate)}</div>
+            <div>Travel date: {fmtDay(b.travelDate)}</div>
             <div className="row" style={{ gap: 6, marginTop: 4 }}><Badge value={b.status} /><Badge value={b.paymentStatus} /></div>
           </div>
         </div>

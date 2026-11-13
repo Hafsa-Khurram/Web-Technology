@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiTag, FiTrash2, FiUsers, FiStar, FiPlus, FiEdit2 } from "react-icons/fi";
 import { Badge, Empty, Loader, Modal, Stars } from "../../components/ui";
 import { DashHead } from "./DashboardLayout";
-import { api, fmtDate } from "../../api";
+import { api, fmtDate, fmtDay } from "../../api";
 import { useApi, useTitle } from "../../hooks";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
@@ -62,7 +62,7 @@ export function Discounts() {
                       <td><strong>{c.code}</strong></td>
                       <td>{c.percent}%</td>
                       <td>{c.description || "—"}</td>
-                      <td>{c.expiresAt ? fmtDate(c.expiresAt) : "Never"}</td>
+                      <td>{c.expiresAt ? fmtDay(c.expiresAt) : "Never"}</td>
                       <td><Badge value={c.isActive ? "active" : "inactive"} /></td>
                       <td>
                         <div className="actions">
