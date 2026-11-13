@@ -67,7 +67,8 @@ router.delete(
   protect,
   allow("agent", "admin"),
   wrap(async (req, res) => {
-    await Coupon.findByIdAndDelete(req.params.id);
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) throw new HttpError(404, "Coupon not found");
     res.json({ deleted: true });
   })
 );
