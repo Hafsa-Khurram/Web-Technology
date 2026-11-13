@@ -206,6 +206,7 @@ router.patch(
       if (!Booking.STATUSES.includes(status)) throw new HttpError(400, "Invalid status");
       booking.status = status;
       if (status === "cancelled") booking.cancelledAt = new Date();
+      else booking.cancelledAt = undefined; // re-opened bookings are no longer cancelled
     }
 
     // Re-check seats when the party size or date changes, or when a cancelled /
