@@ -24,9 +24,11 @@ router.post(
   "/login",
   wrap(async (req, res) => {
     const { email, password } = req.body;
-    if (!email || !password) throw new HttpError(400, "Email and password are required");
+    if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+      throw new HttpError(400, "Email and password are required");
+    }
 
-    const user = await User.findOne({ email: String(email).toLowerCase().trim() }).select("+password");
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select("+password");
     if (!user || !(await user.comparePassword(password))) {
       throw new HttpError(401, "Incorrect email or password");
     }
@@ -50,7 +52,7 @@ router.patch(
     if (phone !== undefined) user.phone = phone;
 
     if (newPassword) {
-      if (!currentPassword || !(await user.comparePassword(currentPassword))) {
+      if (typeof currentPassword !== "string" || !(await user.comparePassword(currentPassword))) {
         throw new HttpError(400, "Current password is incorrect");
       }
       if (String(newPassword).length < 6) throw new HttpError(400, "New password must be at least 6 characters");
