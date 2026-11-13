@@ -26,11 +26,24 @@ function money(n) {
   return `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
+// Travel dates arrive as "YYYY-MM-DD", which JavaScript reads as midnight UTC.
+// All day calculations use UTC so results don't depend on the server's time zone.
+const DAY = 24 * 60 * 60 * 1000;
+const utcDay = (d) => {
+  const x = new Date(d);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
+};
+
+// Earliest date a customer can book: "tomorrow" for someone in the furthest-behind
+// time zone (UTC-12). This never rejects a customer's real tomorrow, wherever they are.
+function earliestTravelDate() {
+  return new Date(utcDay(Date.now() - 12 * 60 * 60 * 1000).getTime() + DAY);
+}
+
 async function seatsTaken(packageId, travelDate, excludeId) {
-  const start = new Date(travelDate);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  const start = utcDay(travelDate);
+  const end = new Date(start.getTime() + DAY);
   const rows = await Booking.find({
     package: packageId,
     travelDate: { $gte: start, $lt: end },
@@ -65,10 +78,9 @@ router.post(
     if (!Number.isInteger(count) || count < 1 || count > 20) throw new HttpError(400, "Travellers must be between 1 and 20");
 
     const date = new Date(travelDate);
-    const tomorrow = new Date();
-    tomorrow.setHours(0, 0, 0, 0);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (Number.isNaN(date.getTime()) || date < tomorrow) throw new HttpError(400, "Please choose a travel date from tomorrow onwards");
+    if (Number.isNaN(date.getTime()) || date < earliestTravelDate()) {
+      throw new HttpError(400, "Please choose a travel date from tomorrow onwards");
+    }
 
     const taken = await seatsTaken(pkg._id, date);
     if (taken + count > pkg.seats) {
