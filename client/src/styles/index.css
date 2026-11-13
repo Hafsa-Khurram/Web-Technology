@@ -1602,6 +1602,16 @@ table.table {
   color: var(--ink);
   border-color: var(--sun);
 }
+/* Fit three or four tabs on a phone without a hidden scroll area */
+@media (max-width: 560px) {
+  .tabs {
+    gap: 0;
+  }
+  .tabs button {
+    padding: 10px;
+    font-size: 0.86rem;
+  }
+}
 
 /* ---------------- Toasts ---------------- */
 .toasts {
