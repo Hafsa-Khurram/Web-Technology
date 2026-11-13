@@ -112,7 +112,7 @@ Web-Technology/
 ## How to run
 
 ### What you need (install once)
-1. **Node.js 18 or newer** — https://nodejs.org (LTS version)
+1. **Node.js 20 or newer** — https://nodejs.org (LTS version)
 2. **Git** — https://git-scm.com
 3. **MongoDB** — either
    - **MongoDB Community Server** (installs locally, includes Compass) — https://www.mongodb.com/try/download/community, or
