@@ -21,9 +21,12 @@ export function MyBookings() {
 
   const now = new Date();
   const all = data?.bookings || [];
+  // Every booking lands in exactly one tab. Pending bookings stay under "Upcoming"
+  // even if the date has passed, because they still need an agent's decision.
+  const isPast = (b) => b.status === "completed" || (b.status === "confirmed" && new Date(b.travelDate) < now);
   const groups = {
-    upcoming: all.filter((b) => ["pending", "confirmed"].includes(b.status) && new Date(b.travelDate) >= now),
-    past: all.filter((b) => b.status === "completed" || (b.status === "confirmed" && new Date(b.travelDate) < now)),
+    upcoming: all.filter((b) => ["pending", "confirmed"].includes(b.status) && !isPast(b)),
+    past: all.filter(isPast),
     cancelled: all.filter((b) => b.status === "cancelled"),
   };
 
