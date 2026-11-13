@@ -1634,6 +1634,17 @@ table.table {
   max-width: 380px;
   animation: rise 0.2s ease-out;
 }
+/* On phones, keep toasts inside the screen with equal margins on both sides */
+@media (max-width: 560px) {
+  .toasts {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .toast {
+    max-width: none;
+  }
+}
 .toast-success svg:first-child {
   color: #7fe0c2;
 }
